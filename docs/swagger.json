@@ -1,12 +1,12 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API untuk user management di Go Gin",
+        "description": "API untuk Books management",
         "title": "Go Sanber64 Quiz3 API",
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "https://go-sanber64-quiz3.onrender.com",
     "basePath": "/",
     "paths": {
         "/api/books": {
