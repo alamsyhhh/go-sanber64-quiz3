@@ -4,6 +4,7 @@ go 1.23.4
 
 require (
 	github.com/doug-martin/goqu/v9 v9.19.0
+	github.com/gin-contrib/cors v1.7.3
 	github.com/gin-gonic/gin v1.10.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.10.9
@@ -29,7 +30,7 @@ require (
 )
 
 require (
-	github.com/bytedance/sonic v1.12.9 // indirect
+	github.com/bytedance/sonic v1.12.10 // indirect
 	github.com/bytedance/sonic/loader v0.2.3 // indirect
 	github.com/cloudinary/cloudinary-go/v2 v2.9.1
 	github.com/cloudwego/base64x v0.1.5 // indirect
