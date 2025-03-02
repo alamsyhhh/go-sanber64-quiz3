@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"go-sanber64-quiz3/config"
 	"go-sanber64-quiz3/databases/migrations"
 	"go-sanber64-quiz3/routes"
+	"go-sanber64-quiz3/utils"
 
 	_ "go-sanber64-quiz3/docs"
 
@@ -14,7 +14,7 @@ import (
 
 // @title Go Sanber64 Quiz3 API
 // @version 1.0
-// @description API untuk user management di Go Gin
+// @description API untuk Books management
 // @host localhost:8080
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
@@ -22,7 +22,7 @@ import (
 // @name Authorization
 // @description Masukkan token dengan format "Bearer {token}"
 func main() {
-	DB, err := config.ConnectDB()
+	DB, err := utils.ConnectDB()
 	if err != nil {
 		panic(fmt.Sprintf("❌ Error saat menginisialisasi database: %v", err))
 	}
