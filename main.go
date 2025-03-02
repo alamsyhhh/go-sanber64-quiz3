@@ -18,7 +18,7 @@ import (
 // @title Go Sanber64 Quiz3 API
 // @version 1.0
 // @description API untuk Books management
-// @host https://go-sanber64-quiz3.onrender.com
+// @host go-sanber64-quiz3.onrender.com
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
 // @in header
