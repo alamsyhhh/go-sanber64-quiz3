@@ -1,0 +1,429 @@
+basePath: /
+definitions:
+  dto.CreateCategoryRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  dto.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.RegisterRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.UpdateCategoryRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  dto.UpdateUserRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API untuk user management di Go Gin
+  title: Go Sanber64 Quiz3 API
+  version: "1.0"
+paths:
+  /api/books:
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan daftar semua buku
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get all books
+      tags:
+      - Books
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add a new book with multipart form-data including an image
+      parameters:
+      - description: Book Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Book Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Release Year
+        in: formData
+        name: release_year
+        required: true
+        type: integer
+      - description: Price
+        in: formData
+        name: price
+        required: true
+        type: integer
+      - description: Total Page
+        in: formData
+        name: total_page
+        required: true
+        type: integer
+      - description: Category ID
+        in: formData
+        name: category_id
+        required: true
+        type: integer
+      - description: Book Image
+        in: formData
+        name: image_url
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Create a new book
+      tags:
+      - Books
+  /api/books/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus buku berdasarkan ID
+      parameters:
+      - description: ID Buku
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Delete book by ID
+      tags:
+      - Books
+    get:
+      consumes:
+      - application/json
+      description: Mendapatkan informasi buku berdasarkan ID
+      parameters:
+      - description: ID Buku
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Get book by ID
+      tags:
+      - Books
+    put:
+      consumes:
+      - multipart/form-data
+      description: Update book details with optional image update using multipart
+        form-data
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Book Title
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Book Description
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: Release Year
+        in: formData
+        name: release_year
+        required: true
+        type: integer
+      - description: Price
+        in: formData
+        name: price
+        required: true
+        type: integer
+      - description: Total Page
+        in: formData
+        name: total_page
+        required: true
+        type: integer
+      - description: Category ID
+        in: formData
+        name: category_id
+        required: true
+        type: integer
+      - description: Book Image (optional)
+        in: formData
+        name: image_url
+        type: file
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Update an existing book
+      tags:
+      - Books
+  /api/categories:
+    get:
+      description: Mengembalikan daftar semua kategori yang tersedia
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Mendapatkan semua kategori
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Membuat kategori baru dengan nama yang diberikan
+      parameters:
+      - description: Data kategori
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCategoryRequest'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Membuat kategori baru
+      tags:
+      - Categories
+  /api/categories/{id}:
+    delete:
+      description: Menghapus kategori dengan ID tertentu
+      parameters:
+      - description: ID Kategori
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Menghapus kategori berdasarkan ID
+      tags:
+      - Categories
+    get:
+      description: Mengambil informasi kategori berdasarkan ID yang diberikan
+      parameters:
+      - description: ID Kategori
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Mendapatkan detail kategori berdasarkan ID
+      tags:
+      - Categories
+    put:
+      consumes:
+      - application/json
+      description: Mengupdate nama kategori yang telah ada
+      parameters:
+      - description: ID Kategori
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Data kategori
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCategoryRequest'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Memperbarui kategori berdasarkan ID
+      tags:
+      - Categories
+  /api/categories/{id}/books:
+    get:
+      description: Mengambil daftar buku yang tersedia berdasarkan kategori tertentu
+      parameters:
+      - description: ID Kategori
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: Mendapatkan daftar buku berdasarkan kategori
+      tags:
+      - Categories
+  /api/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint untuk login user dan mendapatkan token JWT
+      parameters:
+      - description: Data Login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login berhasil
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Username atau password salah
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Login user
+      tags:
+      - Users
+  /api/users/me:
+    get:
+      consumes:
+      - application/json
+      description: Endpoint untuk mendapatkan informasi user berdasarkan token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User ditemukan
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Mendapatkan data user yang sedang login
+      tags:
+      - Users
+  /api/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint untuk registrasi user baru
+      parameters:
+      - description: Data User
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User berhasil didaftarkan
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mendaftarkan user baru
+      tags:
+      - Users
+  /api/users/update:
+    put:
+      consumes:
+      - application/json
+      description: Endpoint untuk memperbarui informasi user
+      parameters:
+      - description: Data User
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User berhasil diperbarui
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: Masukkan token dengan format "Bearer {token}"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
