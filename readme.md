@@ -8,7 +8,7 @@ This is the backend API for managing books. The API allows users to create, upda
 
 The API documentation can be accessed at:
 
-🔗 [API Documentation](https://go-sanber64-quiz3-1-0.onrender.com/api-docs/index.html)
+🔗 [API Documentation](https://go-sanber64-quiz3.onrender.com/api-docs/index.html)
 
 ## 🔑 Authentication
 

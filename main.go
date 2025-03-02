@@ -18,9 +18,6 @@ import (
 // @host go-sanber64-quiz3.onrender.com
 // @BasePath /
 // @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
-// @description Masukkan token dengan format "Bearer {token}"
 func main() {
 	DB, err := utils.ConnectDB()
 	if err != nil {
