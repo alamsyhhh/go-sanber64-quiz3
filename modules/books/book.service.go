@@ -8,11 +8,11 @@ import (
 )
 
 type BookService interface {
-	CreateBook(title, description string, image []byte, releaseYear, price, totalPage, categoryID int, createdBy string) error
+	CreateBook(title, description string, image []byte, releaseYear, price, totalPage, categoryID int, createdBy string) (*Book, error)
 	GetBookByID(id int) (*Book, error)
 	GetAllBooks() ([]Book, error)
-	UpdateBook(id int, title, description string, image []byte, releaseYear, price, totalPage, categoryID int, modifiedBy string) error
-	DeleteBook(id int) error
+	UpdateBook(id int, title, description string, image []byte, releaseYear, price, totalPage, categoryID int, modifiedBy string) (*Book, error)
+	DeleteBook(id int) (*Book, error)
 }
 
 type bookService struct {
@@ -23,14 +23,14 @@ func NewBookService(repo BookRepository) BookService {
 	return &bookService{repo}
 }
 
-func (s *bookService) CreateBook(title, description string, image []byte, releaseYear, price, totalPage, categoryID int, createdBy string) error {
+func (s *bookService) CreateBook(title, description string, image []byte, releaseYear, price, totalPage, categoryID int, createdBy string) (*Book, error) {
 	if releaseYear < 1980 || releaseYear > 2024 {
-		return errors.New("tahun rilis harus antara 1980 - 2024")
+		return nil, errors.New("tahun rilis harus antara 1980 - 2024")
 	}
 
 	imageURL, err := utils.UploadImageToCloudinary(image)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	thickness := "tipis"
@@ -52,8 +52,15 @@ func (s *bookService) CreateBook(title, description string, image []byte, releas
 		ModifiedAt:  time.Now(),
 		ModifiedBy:  createdBy,
 	}
-	return s.repo.CreateBook(book)
+
+	createdBook, err := s.repo.CreateBook(book)
+	if err != nil {
+		return nil, err
+	}
+
+	return createdBook, nil
 }
+
 
 func (s *bookService) GetBookByID(id int) (*Book, error) {
 	return s.repo.GetBookByID(id)
@@ -63,16 +70,16 @@ func (s *bookService) GetAllBooks() ([]Book, error) {
 	return s.repo.GetAllBooks()
 }
 
-func (s *bookService) UpdateBook(id int, title, description string, image []byte, releaseYear, price, totalPage, categoryID int, modifiedBy string) error {
+func (s *bookService) UpdateBook(id int, title, description string, image []byte, releaseYear, price, totalPage, categoryID int, modifiedBy string) (*Book, error) {
 	book, err := s.repo.GetBookByID(id)
 	if err != nil {
-		return errors.New("buku tidak ditemukan")
+		return nil, errors.New("buku tidak ditemukan")
 	}
 
 	if len(image) > 0 {
 		imageURL, err := utils.UploadImageToCloudinary(image)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		book.ImageURL = imageURL
 	}
@@ -90,14 +97,24 @@ func (s *bookService) UpdateBook(id int, title, description string, image []byte
 	book.ModifiedAt = time.Now()
 	book.ModifiedBy = modifiedBy
 
-	return s.repo.UpdateBook(book)
-}
-
-func (s *bookService) DeleteBook(id int) error {
-	_, err := s.repo.GetBookByID(id)
+	err = s.repo.UpdateBook(book)
 	if err != nil {
-		return errors.New("buku tidak ditemukan")
+		return nil, err
 	}
 
-	return s.repo.DeleteBook(id)
+	return book, nil
+}
+
+func (s *bookService) DeleteBook(id int) (*Book, error) {
+	book, err := s.repo.GetBookByID(id)
+	if err != nil {
+		return nil, errors.New("buku tidak ditemukan")
+	}
+
+	err = s.repo.DeleteBook(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return book, nil
 }

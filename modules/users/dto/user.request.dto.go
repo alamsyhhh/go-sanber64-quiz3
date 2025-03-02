@@ -1,16 +1,16 @@
 package dto
 
 type RegisterRequest struct {
-	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+	Username string `json:"username" binding:"required"`
 }
 
 type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Password string `json:"password" example:"test12345" binding:"required"`
+	Username string `json:"username" example:"test 3" binding:"required"`
 }
 
 type UpdateUserRequest struct {
-	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+	Username string `json:"username" binding:"required"`
 }

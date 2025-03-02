@@ -599,10 +599,12 @@ const docTemplate = `{
             ],
             "properties": {
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test12345"
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "test 3"
                 }
             }
         },

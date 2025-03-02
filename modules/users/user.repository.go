@@ -47,16 +47,24 @@ func (r *userRepository) GetUserByUsername(username string) (*User, error) {
 }
 
 func (r *userRepository) UpdateUser(user *User) error {
+	updateData := goqu.Record{
+		"username":    user.Username,
+		"modified_at": user.ModifiedAt,
+		"modified_by": user.ModifiedBy,
+	}
+
+	// Perbarui password jika diberikan
+	if user.Password != "" {
+		updateData["password"] = user.Password
+	}
+
 	_, err := r.db.Update("users").
-		Set(goqu.Record{
-			"username":    user.Username,
-			"modified_at": user.ModifiedAt,
-			"modified_by": user.ModifiedBy,
-		}).
+		Set(updateData).
 		Where(goqu.Ex{"id": user.ID}).
 		Executor().Exec()
 	return err
 }
+
 
 func (r *userRepository) GetUserByID(id int) (*User, error) {
 	var user User

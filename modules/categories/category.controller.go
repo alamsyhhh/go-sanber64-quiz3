@@ -30,23 +30,32 @@ func (c *CategoryController) CreateCategory(ctx *gin.Context) {
 	var req dto.CreateCategoryRequest
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
 	createdBy, exists := ctx.Get("username")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		common.GenerateErrorResponse(ctx, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
 
-	err := c.service.CreateCategory(req.Name, createdBy.(string))
+	category, err := c.service.CreateCategory(req.Name, createdBy.(string))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	common.GenerateSuccessResponse(ctx, "Kategori berhasil dibuat")
+	responseData := gin.H{
+		"id":         category.ID,
+		"name":       category.Name,
+		"created_at": category.CreatedAt,
+		"created_by": category.CreatedBy,
+		"modified_at": category.ModifiedAt,
+		"modified_by": category.ModifiedBy,
+	}
+
+	common.GenerateSuccessResponseWithData(ctx, "Kategori berhasil dibuat", responseData)
 }
 
 // GetAllCategories godoc
@@ -59,7 +68,7 @@ func (c *CategoryController) CreateCategory(ctx *gin.Context) {
 func (c *CategoryController) GetAllCategories(ctx *gin.Context) {
 	categories, err := c.service.GetAllCategories()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
@@ -75,29 +84,42 @@ func (c *CategoryController) GetAllCategories(ctx *gin.Context) {
 // @Security BearerAuth
 // @Router /api/categories/{id} [get]
 func (c *CategoryController) UpdateCategory(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, "ID kategori tidak valid", nil)
+		return
+	}
 
 	var req dto.UpdateCategoryRequest
-
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
 	modifiedBy, exists := ctx.Get("username")
 	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		common.GenerateErrorResponse(ctx, http.StatusUnauthorized, "Unauthorized", nil)
 		return
 	}
 
-	err := c.service.UpdateCategory(id, req.Name, modifiedBy.(string))
+	category, err := c.service.UpdateCategory(id, req.Name, modifiedBy.(string))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	common.GenerateSuccessResponse(ctx, "Kategori berhasil diperbarui")
+	responseData := gin.H{
+		"id":          category.ID,
+		"name":        category.Name,
+		"created_at":  category.CreatedAt,
+		"created_by":  category.CreatedBy,
+		"modified_at": category.ModifiedAt,
+		"modified_by": category.ModifiedBy,
+	}
+
+	common.GenerateSuccessResponseWithData(ctx, "Kategori berhasil diperbarui", responseData)
 }
+
 
 // UpdateCategory godoc
 // @Summary Memperbarui kategori berdasarkan ID
@@ -110,16 +132,30 @@ func (c *CategoryController) UpdateCategory(ctx *gin.Context) {
 // @Security BearerAuth
 // @Router /api/categories/{id} [put]
 func (c *CategoryController) DeleteCategory(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-
-	err := c.service.DeleteCategory(id)
+	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, "ID kategori tidak valid", nil)
 		return
 	}
 
-	common.GenerateSuccessResponse(ctx, "Kategori berhasil dihapus")
+	category, err := c.service.DeleteCategory(id)
+	if err != nil {
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
+		return
+	}
+
+	responseData := gin.H{
+		"id":          category.ID,
+		"name":        category.Name,
+		"created_at":  category.CreatedAt,
+		"created_by":  category.CreatedBy,
+		"modified_at": category.ModifiedAt,
+		"modified_by": category.ModifiedBy,
+	}
+
+	common.GenerateSuccessResponseWithData(ctx, "Kategori berhasil dihapus", responseData)
 }
+
 
 // DeleteCategory godoc
 // @Summary Menghapus kategori berdasarkan ID
@@ -132,13 +168,13 @@ func (c *CategoryController) DeleteCategory(ctx *gin.Context) {
 func (c *CategoryController) GetCategoryByID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID kategori tidak valid"})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, "ID kategori tidak valid", nil)
 		return
 	}
 
 	category, err := c.service.GetCategoryByID(id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Kategori tidak ditemukan"})
+		common.GenerateErrorResponse(ctx, http.StatusNotFound, "Kategori tidak ditemukan", nil)
 		return
 	}
 
@@ -156,13 +192,13 @@ func (c *CategoryController) GetCategoryByID(ctx *gin.Context) {
 func (c *CategoryController) GetBooksByCategory(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID kategori tidak valid"})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, "ID kategori tidak valid", nil)
 		return
 	}
 
 	books, err := c.service.GetBooksByCategory(id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Kategori tidak ditemukan atau tidak memiliki buku"})
+		common.GenerateErrorResponse(ctx, http.StatusNotFound, "Kategori tidak ditemukan atau tidak memiliki buku", nil)
 		return
 	}
 

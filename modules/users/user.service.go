@@ -12,7 +12,7 @@ import (
 type UserService interface {
 	RegisterUser(username, password string) (*User, error)
 	LoginUser(username, password string) (string, error)
-	UpdateUser(id int, username string) (*User, error)
+	UpdateUser(id int, username string, password string) (*User, error)
 	GetMe(id int) (*User, error)
 }
 
@@ -75,7 +75,7 @@ func (s *userService) LoginUser(username, password string) (string, error) {
 	return tokenString, nil
 }
 
-func (s *userService) UpdateUser(id int, username string) (*User, error) {
+func (s *userService) UpdateUser(id int, username string, password string) (*User, error) {
 	user, err := s.repo.GetUserByID(id)
 	if err != nil {
 		return nil, err
@@ -84,6 +84,14 @@ func (s *userService) UpdateUser(id int, username string) (*User, error) {
 	user.Username = username
 	user.ModifiedAt = time.Now()
 	user.ModifiedBy = username
+
+	if password != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, err
+		}
+		user.Password = string(hashedPassword)
+	}
 
 	if err := s.repo.UpdateUser(user); err != nil {
 		return nil, err

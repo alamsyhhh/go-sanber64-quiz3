@@ -10,8 +10,10 @@ definitions:
   dto.LoginRequest:
     properties:
       password:
+        example: test12345
         type: string
       username:
+        example: test 3
         type: string
     required:
     - password

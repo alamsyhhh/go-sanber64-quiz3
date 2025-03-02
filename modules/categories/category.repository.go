@@ -14,8 +14,8 @@ type CategoryRepository interface {
 	CreateCategory(category *Category) error
 	GetCategoryByID(id int) (*Category, error)
 	GetAllCategories() ([]Category, error)
-	UpdateCategory(category *Category) error
-	DeleteCategory(id int) error
+	UpdateCategory(category *Category) (*Category, error)
+	DeleteCategory(id int) (*Category, error)
 	GetBooksByCategory(categoryID int) ([]books.Book, error)
 }
 
@@ -60,7 +60,7 @@ func (r *categoryRepository) GetAllCategories() ([]Category, error) {
 	return categories, nil
 }
 
-func (r *categoryRepository) UpdateCategory(category *Category) error {
+func (r *categoryRepository) UpdateCategory(category *Category) (*Category, error) {
 	_, err := r.db.Update("categories").
 		Set(goqu.Record{
 			"name":        category.Name,
@@ -69,15 +69,31 @@ func (r *categoryRepository) UpdateCategory(category *Category) error {
 		}).
 		Where(goqu.Ex{"id": category.ID}).
 		Executor().Exec()
-	return err
+		
+	if err != nil {
+		return nil, err
+	}
+	return category, nil
 }
 
-func (r *categoryRepository) DeleteCategory(id int) error {
-	_, err := r.db.Delete("categories").
+
+func (r *categoryRepository) DeleteCategory(id int) (*Category, error) {
+	category, err := r.GetCategoryByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = r.db.Delete("categories").
 		Where(goqu.Ex{"id": id}).
 		Executor().Exec()
-	return err
+
+	if err != nil {
+		return nil, err
+	}
+
+	return category, nil
 }
+
 
 func (r *categoryRepository) GetBooksByCategory(categoryID int) ([]books.Book, error) {
 	var books []books.Book

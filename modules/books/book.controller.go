@@ -36,7 +36,7 @@ func (c *BookController) CreateBook(ctx *gin.Context) {
 	var req dto.CreateBookRequest
 
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
@@ -44,13 +44,13 @@ func (c *BookController) CreateBook(ctx *gin.Context) {
 
 	file, err := ctx.FormFile("image_url")
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Gagal membaca gambar"})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, "Gagal membaca gambar", nil)
 		return
 	}
 
 	imageData, err := file.Open()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuka gambar"})
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, "Gagal membuka gambar", nil)
 		return
 	}
 	defer imageData.Close()
@@ -58,17 +58,33 @@ func (c *BookController) CreateBook(ctx *gin.Context) {
 	imageBytes := make([]byte, file.Size)
 	_, err = imageData.Read(imageBytes)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membaca gambar"})
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, "Gagal membaca gambar", nil)
 		return
 	}
 
-	err = c.service.CreateBook(req.Title, req.Description, imageBytes, req.ReleaseYear, req.Price, req.TotalPage, req.CategoryID, createdBy)
+	book, err := c.service.CreateBook(req.Title, req.Description, imageBytes, req.ReleaseYear, req.Price, req.TotalPage, req.CategoryID, createdBy)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	common.GenerateSuccessResponse(ctx, "Buku berhasil ditambahkan")
+	responseData := gin.H{
+		"id":          book.ID,
+		"title":       book.Title,
+		"description": book.Description,
+		"image_url":   book.ImageURL,
+		"release_year": book.ReleaseYear,
+		"price":       book.Price,
+		"total_page":  book.TotalPage,
+		"thickness":   book.Thickness,
+		"category_id": book.CategoryID,
+		"created_at":  book.CreatedAt,
+		"created_by":  book.CreatedBy,
+		"modified_at": book.ModifiedAt,
+		"modified_by": book.ModifiedBy,
+	}
+
+	common.GenerateSuccessResponseWithData(ctx, "Buku berhasil ditambahkan", responseData)
 }
 
 // @Summary Get book by ID
@@ -82,17 +98,17 @@ func (c *BookController) CreateBook(ctx *gin.Context) {
 func (c *BookController) GetBookByID(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID harus berupa angka"})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, "ID harus berupa angka", nil)
 		return
 	}
 
 	book, err := c.service.GetBookByID(id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusNotFound, err.Error(), nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": book})
+	common.GenerateSuccessResponseWithData(ctx, "Detail buku ditemukan", book)
 }
 
 // @Summary Get all books
@@ -105,11 +121,11 @@ func (c *BookController) GetBookByID(ctx *gin.Context) {
 func (c *BookController) GetAllBooks(ctx *gin.Context) {
 	books, err := c.service.GetAllBooks()
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": books})
+	common.GenerateSuccessResponseWithData(ctx, "Daftar buku ditemukan", books)
 }
 
 // UpdateBook godoc
@@ -131,13 +147,13 @@ func (c *BookController) GetAllBooks(ctx *gin.Context) {
 func (c *BookController) UpdateBook(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID harus berupa angka"})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, "ID harus berupa angka", nil)
 		return
 	}
 
 	var req dto.UpdateBookRequest
 	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
@@ -152,13 +168,13 @@ func (c *BookController) UpdateBook(ctx *gin.Context) {
 		imageData.Read(imageBytes)
 	}
 
-	err = c.service.UpdateBook(id, req.Title, req.Description, imageBytes, req.ReleaseYear, req.Price, req.TotalPage, req.CategoryID, modifiedBy)
+	updatedBook, err := c.service.UpdateBook(id, req.Title, req.Description, imageBytes, req.ReleaseYear, req.Price, req.TotalPage, req.CategoryID, modifiedBy)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Buku berhasil diperbarui"})
+	common.GenerateSuccessResponseWithData(ctx, "Buku berhasil diperbarui", updatedBook)
 }
 
 // @Summary Delete book by ID
@@ -172,15 +188,15 @@ func (c *BookController) UpdateBook(ctx *gin.Context) {
 func (c *BookController) DeleteBook(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID harus berupa angka"})
+		common.GenerateErrorResponse(ctx, http.StatusBadRequest, "ID harus berupa angka", nil)
 		return
 	}
 
-	err = c.service.DeleteBook(id)
+	deletedBook, err := c.service.DeleteBook(id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Buku berhasil dihapus"})
+	common.GenerateSuccessResponseWithData(ctx, "Buku berhasil dihapus", deletedBook)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type BookRepository interface {
-	CreateBook(book *Book) error
+	CreateBook(book *Book) (*Book, error)
 	GetBookByID(id int) (*Book, error)
 	GetAllBooks() ([]Book, error)
 	UpdateBook(book *Book) error
@@ -22,20 +22,26 @@ func NewBookRepository(db *goqu.Database) BookRepository {
 	return &bookRepository{db}
 }
 
-func (r *bookRepository) CreateBook(book *Book) error {
+func (r *bookRepository) CreateBook(book *Book) (*Book, error) {
 	query := r.db.Insert("books").
 		Cols("title", "description", "image_url", "release_year", "price", "total_page", "thickness", "category_id", "created_at", "created_by", "modified_at", "modified_by").
-		Vals(goqu.Vals{book.Title, book.Description, book.ImageURL, book.ReleaseYear, book.Price, book.TotalPage, book.Thickness, book.CategoryID, book.CreatedAt, book.CreatedBy, book.ModifiedAt, book.ModifiedBy}).
+		Vals(goqu.Vals{
+			book.Title, book.Description, book.ImageURL, book.ReleaseYear, book.Price,
+			book.TotalPage, book.Thickness, book.CategoryID, book.CreatedAt, book.CreatedBy,
+			book.ModifiedAt, book.ModifiedBy,
+		}).
 		Returning("id")
 
 	var newID int
 	_, err := query.Executor().ScanVal(&newID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	book.ID = newID
-	return nil
+
+	return book, nil
 }
+
 
 func (r *bookRepository) GetBookByID(id int) (*Book, error) {
 	var book Book

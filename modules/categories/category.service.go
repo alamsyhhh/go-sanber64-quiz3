@@ -7,11 +7,11 @@ import (
 )
 
 type CategoryService interface {
-	CreateCategory(name, createdBy string) error
+	CreateCategory(name, createdBy string) (*Category, error)
 	GetCategoryByID(id int) (*Category, error)
 	GetAllCategories() ([]Category, error)
-	UpdateCategory(id int, name, modifiedBy string) error
-	DeleteCategory(id int) error
+	UpdateCategory(id int, name, modifiedBy string) (*Category, error)
+	DeleteCategory(id int) (*Category, error)
 	GetBooksByCategory(categoryID int) ([]books.Book, error)
 }
 
@@ -23,8 +23,7 @@ func NewCategoryService(repo CategoryRepository) CategoryService {
 	return &categoryService{repo}
 }
 
-func (s *categoryService) CreateCategory(name, createdBy string) error {
-	
+func (s *categoryService) CreateCategory(name, createdBy string) (*Category, error) {
 	category := &Category{
 		Name:       name,
 		CreatedAt:  time.Now(),
@@ -32,8 +31,13 @@ func (s *categoryService) CreateCategory(name, createdBy string) error {
 		ModifiedAt: time.Now(),
 		ModifiedBy: createdBy,
 	}
-	return s.repo.CreateCategory(category)
+	err := s.repo.CreateCategory(category)
+	if err != nil {
+		return nil, err
+	}
+	return category, nil
 }
+
 
 func (s *categoryService) GetCategoryByID(id int) (*Category, error) {
 	return s.repo.GetCategoryByID(id)
@@ -43,26 +47,38 @@ func (s *categoryService) GetAllCategories() ([]Category, error) {
 	return s.repo.GetAllCategories()
 }
 
-func (s *categoryService) UpdateCategory(id int, name, modifiedBy string) error {
+func (s *categoryService) UpdateCategory(id int, name, modifiedBy string) (*Category, error) {
 	category, err := s.repo.GetCategoryByID(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	category.Name = name
 	category.ModifiedAt = time.Now()
 	category.ModifiedBy = modifiedBy
 
-	return s.repo.UpdateCategory(category)
+	updatedCategory, err := s.repo.UpdateCategory(category)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedCategory, nil
 }
 
-func (s *categoryService) DeleteCategory(id int) error {
+func (s *categoryService) DeleteCategory(id int) (*Category, error) {
 	_, err := s.repo.GetCategoryByID(id)
 	if err != nil {
-		return errors.New("kategori tidak ditemukan")
+		return nil, errors.New("kategori tidak ditemukan")
 	}
-	return s.repo.DeleteCategory(id)
+
+	deletedCategory, err := s.repo.DeleteCategory(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return deletedCategory, nil
 }
+
 
 func (s *categoryService) GetBooksByCategory(categoryID int) ([]books.Book, error) {
 	return s.repo.GetBooksByCategory(categoryID)

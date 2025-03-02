@@ -97,16 +97,13 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	var req struct {
-		Username string `json:"username" binding:"required"`
-	}
-
+	var req dto.UpdateUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		common.GenerateErrorResponse(ctx, http.StatusBadRequest, "Invalid request", gin.H{"error": err.Error()})
 		return
 	}
 
-	updatedUser, err := c.service.UpdateUser(userID.(int), req.Username)
+	updatedUser, err := c.service.UpdateUser(userID.(int), req.Username, req.Password)
 	if err != nil {
 		common.GenerateErrorResponse(ctx, http.StatusInternalServerError, "Failed to update user", gin.H{"error": err.Error()})
 		return
