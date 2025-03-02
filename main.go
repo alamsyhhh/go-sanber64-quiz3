@@ -8,9 +8,6 @@ import (
 
 	_ "go-sanber64-quiz3/docs"
 
-	"time"
-
-	"github.com/gin-contrib/cors"
 	swaggFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -34,15 +31,6 @@ func main() {
 	migrations.Migrations(DB)
 
 	router := routes.SetupRouter(DB)
-
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
 
 	router.GET("/api-docs/*any", ginSwagger.WrapHandler(swaggFiles.Handler))
 	
