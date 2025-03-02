@@ -43,6 +43,7 @@ go mod tidy
 ### 3. Set Environment Variables
 
 Ensure you have a `.env` file configured with the required environment variables, including `CLOUDINARY_URL`.
+and Change // @host go-sanber64-quiz3.onrender.com in line 18 to localhost:8080
 
 ### 4. Run the Server
 
