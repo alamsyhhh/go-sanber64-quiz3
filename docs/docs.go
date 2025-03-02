@@ -663,7 +663,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "https://go-sanber64-quiz3.onrender.com",
+	Host:             "go-sanber64-quiz3.onrender.com",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Go Sanber64 Quiz3 API",

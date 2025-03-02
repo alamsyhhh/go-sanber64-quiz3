@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "https://go-sanber64-quiz3.onrender.com",
+    "host": "go-sanber64-quiz3.onrender.com",
     "basePath": "/",
     "paths": {
         "/api/books": {
